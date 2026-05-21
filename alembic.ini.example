@@ -1,0 +1,6 @@
+# Alembic is configured but optional for MVP.
+# During development, tables are auto-created by SQLAlchemy on startup.
+# For production, initialize Alembic with:
+#   alembic init alembic
+#   alembic revision --autogenerate -m "initial"
+#   alembic upgrade head

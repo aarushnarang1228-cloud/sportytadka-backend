@@ -1,0 +1,36 @@
+# render.yaml — Render Blueprint for SportyTadka Backend
+# Deploy: Connect GitHub repo → Render auto-detects this file
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: sportytadka-api
+    runtime: python
+    plan: free
+    region: singapore  # Closest to India
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sportytadka-db
+          property: connectionURI
+      - key: CRICKET_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: APP_ENV
+        value: production
+      - key: CORS_ORIGINS
+        value: https://www.sportytadka.com,https://sportytadka.com,https://sportytadka.vercel.app
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+
+databases:
+  - name: sportytadka-db
+    plan: free
+    region: singapore
+    databaseName: sportytadka
+    postgresMajorVersion: "16"
