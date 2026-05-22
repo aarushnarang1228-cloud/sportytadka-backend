@@ -113,7 +113,7 @@ class MatchBrief(BaseModel):
 
 class MatchDetail(MatchBrief):
     match_type: str | None = None
-    scorecard: dict | None = None
+    scorecard: list | dict | None = None
     ai_summary: str | None = None
     ai_key_moments: list | None = None
     ai_generated_at: datetime | None = None
