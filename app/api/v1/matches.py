@@ -178,12 +178,18 @@ async def get_match_detail(slug: str, db: AsyncSession = Depends(get_db)):
     if cached is not None:
         return cached
 
-    result = await db.execute(select(Match).where(Match.slug == slug))
-    match = result.scalar_one_or_none()
-    if match is None:
-        raise HTTPException(status_code=404, detail="Match not found")
+    try:
+        result = await db.execute(select(Match).where(Match.slug == slug))
+        match = result.scalar_one_or_none()
+        if match is None:
+            raise HTTPException(status_code=404, detail="Match not found")
 
-    detail = MatchDetail.model_validate(match)
-    ttl = 20 if match.status == MatchStatus.live else 600
-    cache.set(cache_key, detail, ttl_seconds=ttl)
-    return detail
+        detail = MatchDetail.model_validate(match)
+        ttl = 20 if match.status == MatchStatus.live else 600
+        cache.set(cache_key, detail, ttl_seconds=ttl)
+        return detail
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching match {slug}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error loading match: {str(e)}")
