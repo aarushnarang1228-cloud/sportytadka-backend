@@ -85,12 +85,10 @@ class DynamicCORSMiddleware(BaseHTTPMiddleware):
 async def lifespan(app: FastAPI):
     logger.info(f"Starting SportyTadka API ({settings.app_env})")
 
-    # ONE-TIME: Recreate tables to add commentary column
-    # After this deploy succeeds, switch back to create_all only
+    # Create tables if they don't exist — safe to run on every startup
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database tables recreated with commentary column")
+    logger.info("Database tables ready")
 
     setup_scheduler()
     yield
